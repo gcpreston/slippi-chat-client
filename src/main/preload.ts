@@ -4,7 +4,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 const api = {
-  getThing: () => ipcRenderer.invoke('get-thing'),
+  getClientToken: () => ipcRenderer.invoke('get-client-token'),
+  setClientToken: (newToken: string | null) => ipcRenderer.send('set-client-token', newToken)
 };
 
 contextBridge.exposeInMainWorld('electron', api);
