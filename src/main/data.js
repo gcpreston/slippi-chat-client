@@ -1,6 +1,6 @@
-const { app } = require('electron');
-const fs = require('fs');
-const path = require('path');
+import { app } from 'electron';
+import fs from 'fs';
+import path from 'path';
 
 const userDataPath = app.getPath('userData');
 const filePath = path.join(userDataPath, 'config.json');
@@ -14,7 +14,7 @@ function parseData() {
   }
 }
 
-class UserData {
+export class UserData {
   static writeData(key, value) {
     let contents = parseData()
     contents[key] = value;
@@ -26,5 +26,3 @@ class UserData {
    return contents[key]
   }
 }
-
-module.exports = { UserData };

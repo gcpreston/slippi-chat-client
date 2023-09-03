@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "target": "ES6",
+    "moduleResolution": "nodenext",
     "allowJs": false,
     "noImplicitAny": true,
     "strict": true,
