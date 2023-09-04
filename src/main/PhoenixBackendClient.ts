@@ -47,7 +47,7 @@ const CHANNEL_TOPIC = 'clients';
 
 type ClientChannelConnectResponse = { client_code: string };
 
-export class PhoenixBackendService implements PhoenixService {
+export class PhoenixBackendClient implements PhoenixService {
   socket: typeof Socket;
   channel: typeof Channel;
 

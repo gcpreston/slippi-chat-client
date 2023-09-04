@@ -1,6 +1,6 @@
-import { ConnectionStatus } from '@slippi/slippi-js';
-
 // Types
+
+import { ConnectionStatus } from '@slippi/slippi-js';
 
 // Events that the frontend can add handlers for
 enum SlippiEventType {
@@ -23,7 +23,7 @@ type SlippiBinding<T extends SlippiEventType> = {
   callback: (event: SlippiEventMap[T]) => void;
 };
 
-interface SlippiService {
+export interface SlippiService {
   connect(): void;
   onEvent(eventType: SlippiEventType, handle: (event: SlippiEventMap[typeof eventType]) => void): void;
 }
@@ -31,7 +31,10 @@ interface SlippiService {
 // Implementation
 
 import { Ports, ConnectionEvent } from '@slippi/slippi-js';
-import { SlpLiveStream, SlpRealTime } from '@vinceau/slp-realtime';
+// TODO: Why does this not work with import?
+// import { SlpLiveStream, SlpRealTime } from '@vinceau/slp-realtime';
+const { SlpLiveStream, SlpRealTime } = require('@vinceau/slp-realtime');
+
 import { PhoenixService } from './PhoenixBackendClient';
 
 const SLIPPI_ADDRESS = '127.0.0.1';
@@ -40,7 +43,7 @@ const CONNECTION_TYPE = 'dolphin';
 
 export class SlippiClient implements SlippiService {
   backendClient: PhoenixService;
-  livestream: SlpLiveStream;
+  livestream: typeof SlpLiveStream;
 
   private bindings: Array<SlippiBinding<SlippiEventType>>;
 
@@ -48,6 +51,7 @@ export class SlippiClient implements SlippiService {
     this.backendClient = backendClient;
     this.bindings = [];
 
+    // TODO: The problem occurs when calling SlpLiveStream. Not sure why yet
     this.livestream = new SlpLiveStream(CONNECTION_TYPE);
     const realtime = new SlpRealTime();
     realtime.setStream(this.livestream);
