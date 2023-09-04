@@ -3,7 +3,7 @@
 import { ConnectionStatus } from '@slippi/slippi-js';
 
 // Events that the frontend can add handlers for
-enum SlippiEventType {
+export enum SlippiEventType {
   CONNECTION_STATUS_CHANGED = 'CONNECTION_STATUS_CHANGED'
 }
 

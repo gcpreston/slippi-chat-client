@@ -36,7 +36,13 @@ module.exports = {
             config: 'vite.preload.config.mjs',
           },
           {
-            entry: 'src/main/data.ts',
+            entry: 'src/main/data.ts'
+          },
+          {
+            entry: 'src/main/SlippiClient.ts'
+          },
+          {
+            entry: 'src/main/PhoenixBackendClient.ts'
           }
         ],
         renderer: [

@@ -3,7 +3,7 @@
 import { PlayerType } from '@slippi/slippi-js';
 
 // Events the frontend can add handlers for
-enum PhoenixEventType {
+export enum PhoenixEventType {
   CHANNEL_JOINED = 'CHANNEL_JOINED',
   CHANNEL_JOIN_ERROR = 'CHANNEL_JOIN_ERROR'
 }
@@ -35,12 +35,14 @@ type PhoenixBinding<T extends PhoenixEventType> = {
 export interface PhoenixService {
   connect(): void;
   onEvent(eventType: PhoenixEventType, handle: (event: PhoenixEventMap[typeof eventType]) => void): void;
+  clearBindings(): void;
   gameStarted(players: PlayerType[]): void;
 }
 
 // Implementation
 
 import { Socket, Channel } from 'phoenix-channels';
+// import { Socket, Channel } from 'phoenix';
 
 const SOCKET_URL = 'ws://127.0.0.1:4000/socket';
 const CHANNEL_TOPIC = 'clients';
@@ -96,6 +98,10 @@ export class PhoenixBackendClient implements PhoenixService {
 
   onEvent(eventType: PhoenixEventType, handle: (event: PhoenixEventMap[typeof eventType]) => void): void {
     this.bindings.push({ eventType, callback: handle })
+  }
+
+  clearBindings(): void {
+    this.bindings = [];
   }
 
   // TODO: sendEvent, takes an outward facing event (game start) and forwards to the backend
