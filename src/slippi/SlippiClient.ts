@@ -57,8 +57,8 @@ export default class SlippiClient implements SlippiService {
       .then(() => {
         console.log('in slippi livestream.start.then');
       })
-      .catch(() => {
-        console.log('in slippi livestream.start.catch');
+      .catch((err) => {
+        console.log('in slippi livestream.start.catch', err);
       });
   }
 

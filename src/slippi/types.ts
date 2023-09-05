@@ -10,7 +10,7 @@ export enum SlippiClientConnectionStatus {
   RECONNECT_WAIT = 'RECONNECT_WAIT'
 }
 
-type SlippiConnectionStatusChangedEvent = {
+export type SlippiConnectionStatusChangedEvent = {
   type: SlippiEventType.CONNECTION_STATUS_CHANGED;
   status: SlippiClientConnectionStatus;
 };

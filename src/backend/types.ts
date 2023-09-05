@@ -6,13 +6,13 @@ export enum PhoenixEventType {
   CHANNEL_JOIN_ERROR = 'CHANNEL_JOIN_ERROR'
 }
 
-type PhoenixChannelJoinedEvent = {
+export type PhoenixChannelJoinedEvent = {
   type: PhoenixEventType.CHANNEL_JOINED;
   topic: string;
   clientCode: string;
 };
 
-type PhoenixChannelJoinErrorEvent = {
+export type PhoenixChannelJoinErrorEvent = {
   type: PhoenixEventType.CHANNEL_JOIN_ERROR;
   topic: string;
   error: any;

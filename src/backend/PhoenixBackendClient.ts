@@ -2,6 +2,7 @@ import { Socket, Channel } from 'phoenix-channels';
 // import { Socket, Channel } from 'phoenix';
 import type { PlayerType } from '@slippi/slippi-js';
 
+import { UserData } from '../main/data';
 import { PhoenixService, PhoenixBinding, PhoenixEventType, PhoenixEvent, PhoenixEventMap } from './types';
 
 const SOCKET_URL = 'ws://127.0.0.1:4000/socket';
@@ -10,17 +11,9 @@ const CHANNEL_TOPIC = 'clients';
 type ClientChannelConnectResponse = { connect_code: string };
 
 export class PhoenixBackendClient implements PhoenixService {
-  private socket: typeof Socket;
-  private channel: typeof Channel | null;
-
+  private channel: typeof Channel | undefined;
   private clientCode: string | undefined;
-  private bindings: Array<PhoenixBinding<PhoenixEventType>>;
-
-  constructor(token: string) {
-    this.socket = new Socket(SOCKET_URL, { params: { client_token: token } });
-
-    this.bindings = [];
-  }
+  private bindings: Array<PhoenixBinding<PhoenixEventType>> = [];
 
   gameStarted(players: PlayerType[]) {
     this.channel && this.channel.push('game_started', {
@@ -30,8 +23,11 @@ export class PhoenixBackendClient implements PhoenixService {
   }
 
   connect() {
-    this.socket.connect();
-    this.channel = this.socket.channel(CHANNEL_TOPIC, {});
+    const token = UserData.readData('client-token');
+    const socket = new Socket(SOCKET_URL, { params: { client_token: token } });
+    // TODO: Figure out how to handle socket connect failure
+    socket.connect();
+    this.channel = socket.channel(CHANNEL_TOPIC, {});
 
     this.channel.join()
       .receive('ok', (resp: ClientChannelConnectResponse) => {
