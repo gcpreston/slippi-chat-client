@@ -1,47 +1,29 @@
-// Types
-
-import { ConnectionStatus } from '@slippi/slippi-js';
-
-// Events that the frontend can add handlers for
-export enum SlippiEventType {
-  CONNECTION_STATUS_CHANGED = 'CONNECTION_STATUS_CHANGED'
-}
-
-type SlippiConnectionStatusChangedEvent = {
-  type: SlippiEventType.CONNECTION_STATUS_CHANGED;
-  status: ConnectionStatus;
-};
-
-type SlippiEventMap = {
-  [SlippiEventType.CONNECTION_STATUS_CHANGED]: SlippiConnectionStatusChangedEvent;
-};
-
-type SlippiEvent = SlippiEventMap[SlippiEventType];
-
-type SlippiBinding<T extends SlippiEventType> = {
-  eventType: T;
-  callback: (event: SlippiEventMap[T]) => void;
-};
-
-export interface SlippiService {
-  connect(): void;
-  onEvent(eventType: SlippiEventType, handle: (event: SlippiEventMap[typeof eventType]) => void): void;
-}
-
-// Implementation
-
-import { Ports, ConnectionEvent } from '@slippi/slippi-js';
+import { Ports, ConnectionEvent, ConnectionStatus } from '@slippi/slippi-js';
 // TODO: Why does this not work with import?
 // import { SlpLiveStream, SlpRealTime } from '@vinceau/slp-realtime';
 const { SlpLiveStream, SlpRealTime } = require('@vinceau/slp-realtime');
 
-import { PhoenixService } from './PhoenixBackendClient';
+import { SlippiService, SlippiBinding, SlippiEventType, SlippiEventMap, SlippiEvent, SlippiClientConnectionStatus } from './types';
+import { PhoenixService } from '../backend/types';
 
 const SLIPPI_ADDRESS = '127.0.0.1';
 const SLIPPI_PORT = Ports.DEFAULT;
 const CONNECTION_TYPE = 'dolphin';
 
-export class SlippiClient implements SlippiService {
+function toClientStatus(status: ConnectionStatus): SlippiClientConnectionStatus {
+  switch (status) {
+    case ConnectionStatus.DISCONNECTED:
+      return SlippiClientConnectionStatus.DISCONNECTED;
+    case ConnectionStatus.CONNECTING:
+      return SlippiClientConnectionStatus.CONNECTING;
+    case ConnectionStatus.CONNECTED:
+      return SlippiClientConnectionStatus.CONNECTED;
+    case ConnectionStatus.RECONNECT_WAIT:
+      return SlippiClientConnectionStatus.RECONNECT_WAIT;
+  }
+}
+
+export default class SlippiClient implements SlippiService {
   backendClient: PhoenixService;
   livestream: typeof SlpLiveStream;
 
@@ -57,12 +39,10 @@ export class SlippiClient implements SlippiService {
     realtime.setStream(this.livestream);
 
     // Connect to Slippi
-    this.livestream.connection.on(ConnectionEvent.STATUS_CHANGE, (status) => {
-      console.log('got slippi status change', status);
-
+    this.livestream.connection.on(ConnectionEvent.STATUS_CHANGE, (status: ConnectionStatus) => {
       this.handleEvent({
         type: SlippiEventType.CONNECTION_STATUS_CHANGED,
-        status
+        status: toClientStatus(status)
       });
     });
 

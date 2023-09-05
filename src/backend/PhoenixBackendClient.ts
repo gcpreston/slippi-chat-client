@@ -1,70 +1,29 @@
-// Types
-
-import { PlayerType } from '@slippi/slippi-js';
-
-// Events the frontend can add handlers for
-export enum PhoenixEventType {
-  CHANNEL_JOINED = 'CHANNEL_JOINED',
-  CHANNEL_JOIN_ERROR = 'CHANNEL_JOIN_ERROR'
-}
-
-type PhoenixChannelJoinedEvent = {
-  type: PhoenixEventType.CHANNEL_JOINED;
-  topic: string;
-  clientCode: string;
-};
-
-type PhoenixChannelJoinErrorEvent = {
-  type: PhoenixEventType.CHANNEL_JOIN_ERROR;
-  topic: string;
-  error: any;
-};
-
-type PhoenixEventMap = {
-  [PhoenixEventType.CHANNEL_JOINED]: PhoenixChannelJoinedEvent;
-  [PhoenixEventType.CHANNEL_JOIN_ERROR]: PhoenixChannelJoinErrorEvent;
-};
-
-type PhoenixEvent = PhoenixEventMap[PhoenixEventType];
-
-type PhoenixBinding<T extends PhoenixEventType> = {
-  eventType: T;
-  callback: (event: PhoenixEventMap[T]) => void;
-};
-
-export interface PhoenixService {
-  connect(): void;
-  onEvent(eventType: PhoenixEventType, handle: (event: PhoenixEventMap[typeof eventType]) => void): void;
-  clearBindings(): void;
-  gameStarted(players: PlayerType[]): void;
-}
-
-// Implementation
-
 import { Socket, Channel } from 'phoenix-channels';
 // import { Socket, Channel } from 'phoenix';
+import type { PlayerType } from '@slippi/slippi-js';
+
+import { PhoenixService, PhoenixBinding, PhoenixEventType, PhoenixEvent, PhoenixEventMap } from './types';
 
 const SOCKET_URL = 'ws://127.0.0.1:4000/socket';
 const CHANNEL_TOPIC = 'clients';
 
-type ClientChannelConnectResponse = { client_code: string };
+type ClientChannelConnectResponse = { connect_code: string };
 
 export class PhoenixBackendClient implements PhoenixService {
-  socket: typeof Socket;
-  channel: typeof Channel;
+  private socket: typeof Socket;
+  private channel: typeof Channel | null;
 
   private clientCode: string | undefined;
   private bindings: Array<PhoenixBinding<PhoenixEventType>>;
 
   constructor(token: string) {
     this.socket = new Socket(SOCKET_URL, { params: { client_token: token } });
-    this.channel = this.socket.channel(CHANNEL_TOPIC, {});
 
     this.bindings = [];
   }
 
   gameStarted(players: PlayerType[]) {
-    this.channel.isJoined() && this.channel.push('game_started', {
+    this.channel && this.channel.push('game_started', {
       client: this.clientCode!,
       players: players.map(p => p.connectCode).sort()
     });
@@ -72,17 +31,17 @@ export class PhoenixBackendClient implements PhoenixService {
 
   connect() {
     this.socket.connect();
+    this.channel = this.socket.channel(CHANNEL_TOPIC, {});
 
     this.channel.join()
       .receive('ok', (resp: ClientChannelConnectResponse) => {
         console.log('Joined successfully, reply:', resp);
-        this.clientCode = resp.client_code;
-        // UserData.writeData('client-code', resp.connect_code);
+        this.clientCode = resp.connect_code;
 
         this.handleEvent({
           type: PhoenixEventType.CHANNEL_JOINED,
           topic: this.channel.topic,
-          clientCode: resp.client_code
+          clientCode: resp.connect_code
         });
       })
       .receive('error', (resp: any) => {

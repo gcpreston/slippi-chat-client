@@ -39,10 +39,10 @@ module.exports = {
             entry: 'src/main/data.ts'
           },
           {
-            entry: 'src/main/SlippiClient.ts'
+            entry: 'src/slippi/SlippiClient.ts'
           },
           {
-            entry: 'src/main/PhoenixBackendClient.ts'
+            entry: 'src/backend/PhoenixBackendClient.ts'
           }
         ],
         renderer: [

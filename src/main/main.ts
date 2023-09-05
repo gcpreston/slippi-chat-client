@@ -2,8 +2,10 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 
 import { UserData } from './data';
-import { PhoenixBackendClient, PhoenixEventType } from './PhoenixBackendClient';
-import { SlippiClient, SlippiEventType } from './SlippiClient';
+import { PhoenixEventType } from '../backend/types';
+import { PhoenixBackendClient } from '../backend/PhoenixBackendClient';
+import { SlippiEventType } from '../slippi/types';
+import SlippiClient from '../slippi/SlippiClient';
 
 const ABC_TOKEN = 'TK9XNmIzhnr0vYBgOvcroWKk7jPuYTd7dYQMIc1r6Mo';
 
@@ -42,9 +44,8 @@ const createWindow = () => {
   const backendService = new PhoenixBackendClient(ABC_TOKEN);
   const slippiService = new SlippiClient(backendService);
 
-  backendService.onEvent(PhoenixEventType.CHANNEL_JOINED, () => {
-    console.log('')
-    mainWindow.webContents.send('phoenix-connected');
+  backendService.onEvent(PhoenixEventType.CHANNEL_JOINED, (resp) => {
+    mainWindow.webContents.send('phoenix-connected', resp);
   });
 
   backendService.onEvent(PhoenixEventType.CHANNEL_JOIN_ERROR, (resp) => {
