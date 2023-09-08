@@ -4,9 +4,10 @@ import { TextField, Button } from '@mui/material';
 type TokenInputProps = {
   token: string | null;
   submit: (newToken: string) => void;
+  cancel: () => void;
 };
 
-const TokenInput = ({ token, submit }: TokenInputProps) => {
+const TokenInput = ({ token, submit, cancel }: TokenInputProps) => {
   const [inputVal, setInputVal] = useState(token || '');
 
   return (
@@ -24,6 +25,7 @@ const TokenInput = ({ token, submit }: TokenInputProps) => {
       }}>
         Save
       </Button>
+      <Button variant='outlined' onClick={cancel}>Cancel</Button>
     </div>
   )
 }
