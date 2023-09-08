@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import path from 'path';
 
 import { UserData } from './data';
@@ -54,7 +54,14 @@ const createWindow = () => {
 
   slippiService.onEvent(SlippiEventType.CONNECTION_STATUS_CHANGED, (event) => {
     mainWindow.webContents.send('slippi-connection-status-changed', event);
-  })
+  });
+
+  // Open new window links in browser.
+  // https://stackoverflow.com/questions/32402327
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: 'deny' };
+  });
 
   // Handle ipc events.
   ipcMain.handle('get-client-token', () => UserData.readData('client-token'));
@@ -62,7 +69,6 @@ const createWindow = () => {
 
   ipcMain.on('phoenix-connect', () => backendService.connect());
   ipcMain.on('backend-clear-bindings', () => backendService.clearBindings());
-
   ipcMain.on('slippi-connect', () => slippiService.connect());
 };
 

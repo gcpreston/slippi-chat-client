@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Container } from '@mui/material';
+import React, { useEffect } from 'react';
+import { Button, Container } from '@mui/material';
 import Refresh from '@mui/icons-material/Refresh';
 
 import useBackendConnectionStatus from './hooks/useBackendConnectionStatus';
@@ -21,11 +21,16 @@ const App = () => {
       <Token />
       <div>
         Phoenix state: {backendStatus}{clientCode && ` (${clientCode})`}
-        { backendStatus === 'DISCONNECTED' && <span onClick={() => window.electron.connectToPhoenix()}><Refresh /></span>}
+        { backendStatus === 'DISCONNECTED' && <button onClick={() =>{ console.log('ok'); window.electron.connectToPhoenix(); }}><Refresh /></button>}
+        { backendStatus === 'CONNECTED' &&
+          <Button variant='contained'>
+            <a href='http://localhost:4000/chat' target='_blank'>Open chat</a>
+          </Button>
+        }
       </div>
       <div>
         Slippi state: {slippiStatus}
-        { slippiStatus === 'DISCONNECTED' && <span onClick={() => window.electron.connectToSlippi()}><Refresh /></span>}
+        { slippiStatus === 'DISCONNECTED' && <button onClick={() => window.electron.connectToSlippi()}><Refresh /></button>}
       </div>
     </Container>
   );
