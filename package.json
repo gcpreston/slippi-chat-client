@@ -2,7 +2,7 @@
   "name": "slippi-chat-client",
   "productName": "slippi-chat-client",
   "version": "0.0.1",
-  "description": "My Electron application description",
+  "description": "Client application for Slippi Chat",
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
