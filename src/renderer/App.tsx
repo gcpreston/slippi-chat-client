@@ -6,6 +6,8 @@ import useBackendConnectionStatus from './hooks/useBackendConnectionStatus';
 import useSlippiConnectionStatus from './hooks/useSlippiConnectionStatus';
 import Token from './components/Token';
 
+const CHAT_URL = 'https://slippichat.net/chat';
+
 const App = () => {
   const [backendStatus, clientCode] = useBackendConnectionStatus();
   const slippiStatus = useSlippiConnectionStatus();
@@ -21,10 +23,10 @@ const App = () => {
       <Token />
       <div>
         Phoenix state: {backendStatus}{clientCode && ` (${clientCode})`}
-        { backendStatus === 'DISCONNECTED' && <button onClick={() =>{ console.log('ok'); window.electron.connectToPhoenix(); }}><Refresh /></button>}
+        { backendStatus === 'DISCONNECTED' && <button onClick={() => window.electron.connectToPhoenix()}><Refresh /></button>}
         { backendStatus === 'CONNECTED' &&
           <Button variant='contained'>
-            <a href='http://localhost:4000/chat' target='_blank'>Open chat</a>
+            <a href={CHAT_URL} target='_blank'>Open chat</a>
           </Button>
         }
       </div>
