@@ -5,7 +5,8 @@ import type { PlayerType } from '@slippi/slippi-js';
 import { UserData } from '../main/data';
 import { PhoenixService, PhoenixBinding, PhoenixEventType, PhoenixEvent, PhoenixEventMap } from './types';
 
-const SOCKET_URL = 'wss://slippichat.net/socket';
+// const SOCKET_URL = 'wss://slippichat.net/socket';
+const SOCKET_URL = 'ws://127.0.0.1:4000/socket';
 const CHANNEL_TOPIC = 'clients';
 
 type ClientChannelConnectResponse = { connect_code: string };

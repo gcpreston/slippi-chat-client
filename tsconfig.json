@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES6",
-    "moduleResolution": "nodenext",
+    "moduleResolution": "NodeNext",
+    "module": "NodeNext",
     "allowJs": false,
     "noImplicitAny": true,
     "strict": true,
