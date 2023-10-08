@@ -3,3 +3,5 @@ export type MagicGenerateApiResponse = {
     magic_token: string;
   }
 };
+
+export type MagicVerifyApiResponse = string;

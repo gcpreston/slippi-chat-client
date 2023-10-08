@@ -1,21 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, Link, Stack, TextField, Button } from '@mui/material';
 import { QRCode } from 'react-qrcode-logo';
 
 type MagicLoginDialogProps = {
+  open: boolean;
   magicToken: string | undefined;
   handleClose: () => void;
-  handleSubmit: () => void;
+  handleSubmit: (verificationCode: string) => void;
 };
 
 const magicUrl = (token) => `http://localhost:4000/magic_log_in?t=${token}`;
 
-// TODO: Make it so QR doesn't change on close
-//   This happens because magicToken is state and gets set to undefined with close
-const MagicLoginDialog = ({ magicToken, handleClose, handleSubmit }: MagicLoginDialogProps) => {
+const MagicLoginDialog = ({ open, magicToken, handleClose, handleSubmit }: MagicLoginDialogProps) => {
+  const [code, setCode] = useState('');
 
   return (
-    <Dialog open={Boolean(magicToken)} onClose={handleClose}>
+    <Dialog open={open && Boolean(magicToken)} onClose={handleClose}>
       <DialogTitle>Magic Login</DialogTitle>
       <DialogContent>
           <ol className='list-decimal'>
@@ -27,10 +27,15 @@ const MagicLoginDialog = ({ magicToken, handleClose, handleSubmit }: MagicLoginD
             </li>
             <li>
               <div>Enter the code found at the link.</div>
-              <Stack spacing={2} direction='row'>
-                <TextField variant='outlined' type='number' />
-                <Button type='submit' variant='contained' onClick={handleSubmit}>Submit</Button>
-              </Stack>
+              <form onSubmit={(event) => {
+                event.preventDefault();
+                handleSubmit(code)
+              }}>
+                <Stack spacing={2} direction='row'>
+                    <TextField variant='outlined' type='number' value={code} onChange={(event) => setCode(event.target.value)} />
+                    <Button type='submit' variant='contained'>Submit</Button>
+                </Stack>
+              </form>
             </li>
           </ol>
       </DialogContent>

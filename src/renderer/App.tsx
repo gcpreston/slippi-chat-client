@@ -6,7 +6,7 @@ import useBackendConnectionStatus from './hooks/useBackendConnectionStatus';
 import useSlippiConnectionStatus from './hooks/useSlippiConnectionStatus';
 import Token from './components/Token';
 import MagicLoginDialog from './components/MagicLoginDialog';
-import { generateMagicToken } from './api';
+import { generateMagicToken, magicVerify } from './api';
 import useToken from './hooks/useToken';
 
 const CHAT_URL = 'https://slippichat.net/chat';
@@ -16,6 +16,7 @@ const App = () => {
   const slippiStatus = useSlippiConnectionStatus();
   const [token, _setToken] = useToken();
 
+  const [magicDialogOpen, setMagicDialogOpen] = useState(false);
   const [magicToken, setMagicToken] = useState<string | undefined>();
 
   useEffect(() => {
@@ -31,11 +32,20 @@ const App = () => {
         .then((response) => {
           console.log('got magic response', response);
           setMagicToken(response.data.magic_token);
+          setMagicDialogOpen(true);
         });
     }
   };
 
-  const handleCloseMagicDialog = () => setMagicToken(undefined);
+  const handleCloseMagicDialog = () => setMagicDialogOpen(false);
+
+  const handleSubmitMagicDialog = (verificationCode) => {
+    if (!token) {
+      console.error("Can't verify magic login unless authorized.");
+    } else {
+      magicVerify(token, verificationCode);
+    }
+  };
 
   return (
     <Container maxWidth="md">
@@ -56,7 +66,7 @@ const App = () => {
       </div>
       <div>
         <Button variant='contained' onClick={startMagicLogin}>Magic login</Button>
-        <MagicLoginDialog magicToken={magicToken} handleClose={handleCloseMagicDialog} handleSubmit={handleCloseMagicDialog} />
+        <MagicLoginDialog open={magicDialogOpen} magicToken={magicToken} handleClose={handleCloseMagicDialog} handleSubmit={handleSubmitMagicDialog} />
       </div>
     </Container>
   );
