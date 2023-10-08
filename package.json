@@ -46,7 +46,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.45.2",
+    "react-qrcode-logo": "^2.9.0",
     "react-router-dom": "^6.14.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^6.6.7"
   }
 }
