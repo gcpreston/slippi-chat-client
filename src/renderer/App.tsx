@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Container } from '@mui/material';
+import { Button, Container, Snackbar, Alert, AlertColor } from '@mui/material';
 import Refresh from '@mui/icons-material/Refresh';
 
 import useBackendConnectionStatus from './hooks/useBackendConnectionStatus';
@@ -18,6 +18,14 @@ const App = () => {
 
   const [magicDialogOpen, setMagicDialogOpen] = useState(false);
   const [magicToken, setMagicToken] = useState<string | undefined>();
+
+  type SnackbarData = {
+    open: boolean;
+    variant: AlertColor;
+    message: string;
+  };
+
+  const [snackbarData, setSnackbarData] = useState<SnackbarData>({ open: false, variant: 'success', message: '' });
 
   useEffect(() => {
     window.electron.connectToPhoenix();
@@ -43,9 +51,19 @@ const App = () => {
     if (!token) {
       console.error("Can't verify magic login unless authorized.");
     } else {
-      magicVerify(token, verificationCode);
+      magicVerify(token, verificationCode)
+        .then(() => {
+          setSnackbarData({ open: true, variant: 'success', message: 'Magic login success!' });
+        })
+        .catch((err) => {
+          console.error(err);
+          setSnackbarData({ open: true, variant: 'error', message: 'Something went wrong with magic login' });
+        })
+        .finally(() => setMagicDialogOpen(false));
     }
   };
+
+  const handleSnackClose = () => setSnackbarData({ open: false, variant: 'success', message: '' });
 
   return (
     <Container maxWidth="md">
@@ -67,6 +85,11 @@ const App = () => {
       <div>
         <Button variant='contained' onClick={startMagicLogin}>Magic login</Button>
         <MagicLoginDialog open={magicDialogOpen} magicToken={magicToken} handleClose={handleCloseMagicDialog} handleSubmit={handleSubmitMagicDialog} />
+        <Snackbar open={snackbarData.open} autoHideDuration={3000} onClose={handleSnackClose}>
+          <Alert onClose={handleSnackClose} severity={snackbarData.variant} sx={{ width: '100%' }}>
+            {snackbarData.message}
+          </Alert>
+        </Snackbar>
       </div>
     </Container>
   );
