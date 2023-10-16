@@ -1,12 +1,11 @@
 import { Socket, Channel } from 'phoenix-channels';
-// import { Socket, Channel } from 'phoenix';
 import type { PlayerType } from '@slippi/slippi-js';
 
 import { UserData } from '../main/data';
 import { PhoenixService, PhoenixBinding, PhoenixEventType, PhoenixEvent, PhoenixEventMap } from './types';
+import { baseWS } from '../utils';
 
-// const SOCKET_URL = 'wss://slippichat.net/socket';
-const SOCKET_URL = 'ws://127.0.0.1:4000/socket';
+const SOCKET_URL = `${baseWS}/socket`;
 const CHANNEL_TOPIC = 'clients';
 
 type ClientChannelConnectResponse = { connect_code: string };
@@ -26,6 +25,7 @@ export class PhoenixBackendClient implements PhoenixService {
   connect() {
     const token = UserData.readData('client-token');
     const socket = new Socket(SOCKET_URL, { params: { client_token: token } });
+    console.log('gonna connect', SOCKET_URL, token);
     // TODO: Figure out how to handle socket connect failure
     socket.connect();
     this.channel = socket.channel(CHANNEL_TOPIC, {});

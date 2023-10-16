@@ -8,8 +8,9 @@ import Token from './components/Token';
 import MagicLoginDialog from './components/MagicLoginDialog';
 import { generateMagicToken, magicVerify } from './api';
 import useToken from './hooks/useToken';
+import { baseHTTP } from '../utils';
 
-const CHAT_URL = 'https://slippichat.net/chat';
+const CHAT_URL = `${baseHTTP}/chat`;
 
 const App = () => {
   const [backendStatus, clientCode] = useBackendConnectionStatus();
