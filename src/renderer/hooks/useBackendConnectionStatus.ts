@@ -1,18 +1,20 @@
 import { useState, useEffect } from 'react';
 
-const useBackendConnectionStatus = () => {
-  const [backendStatus, setBackendStatus] = useState('DISCONNECTED');
+import { BackendConnectionStatus } from '../types';
+
+const useBackendConnectionStatus = (): [BackendConnectionStatus, string | null] => {
+  const [backendStatus, setBackendStatus] = useState(BackendConnectionStatus.Disconnected);
   const [clientCode, setClientCode] = useState<string | null>(null);
 
   useEffect(() => {
     window.electron.onPhoenixConnected((_electronEvent, phxEvent) => {
-      setBackendStatus('CONNECTED');
+      setBackendStatus(BackendConnectionStatus.Connected);
       setClientCode(phxEvent.clientCode);
     });
 
     window.electron.onPhoenixConnectError((_electronEvent, phxEvent) => {
       console.log('phx connect error', phxEvent.error);
-      setBackendStatus('ERROR');
+      setBackendStatus(BackendConnectionStatus.Error);
     });
 
     return () => {
