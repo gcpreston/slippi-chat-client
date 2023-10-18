@@ -25,10 +25,24 @@ export class PhoenixBackendClient implements PhoenixService {
   connect() {
     const token = UserData.readData('client-token');
     const socket = new Socket(SOCKET_URL, { params: { client_token: token } });
-    console.log('gonna connect', SOCKET_URL, token);
-    // TODO: Figure out how to handle socket connect failure
     socket.connect();
     this.channel = socket.channel(CHANNEL_TOPIC, {});
+
+    this.handleEvent({
+      type: PhoenixEventType.CHANNEL_JOINING,
+      topic: this.channel.topic,
+      token: token
+    });
+
+    this.channel.onError(() => {
+      this.handleEvent({
+        type: PhoenixEventType.CHANNEL_JOIN_ERROR,
+        topic: this.channel.topic,
+        error: 'Unable to connect.'
+      });
+
+      this.channel.leave();
+    });
 
     this.channel.join()
       .receive('ok', (resp: ClientChannelConnectResponse) => {

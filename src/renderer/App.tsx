@@ -9,6 +9,7 @@ import MagicLoginDialog from './components/MagicLoginDialog';
 import { generateMagicToken, magicVerify } from './api';
 import useToken from './hooks/useToken';
 import { baseHTTP } from '../utils';
+import { BackendConnectionStatus } from './types';
 
 const CHAT_URL = `${baseHTTP}/chat`;
 
@@ -72,8 +73,8 @@ const App = () => {
       <Token />
       <div>
         Phoenix state: {backendStatus}{clientCode && ` (${clientCode})`}
-        { backendStatus === 'DISCONNECTED' && <button onClick={() => window.electron.connectToPhoenix()}><Refresh /></button>}
-        { backendStatus === 'CONNECTED' &&
+        { [BackendConnectionStatus.Disconnected, BackendConnectionStatus.Error].includes(backendStatus) && <button onClick={() => window.electron.connectToPhoenix()}><Refresh /></button>}
+        { backendStatus === BackendConnectionStatus.Connected &&
           <Button variant='contained'>
             <a href={CHAT_URL} target='_blank'>Open chat</a>
           </Button>
