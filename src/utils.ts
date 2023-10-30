@@ -1,5 +1,5 @@
 const env = process.env.NODE_ENV;
-const isProduction = env === 'production';
+export const isProduction = env !== 'development';
 
 const baseHost = isProduction ? 'slippichat.net' : '127.0.0.1:4000';
 

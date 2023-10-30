@@ -1,9 +1,8 @@
 import { MagicGenerateApiResponse, MagicVerifyApiResponse } from './types';
-
-const HOST = 'http://localhost:4000';
+import { baseHTTP } from '../utils';
 
 export const generateMagicToken = async (clientToken: string): Promise<MagicGenerateApiResponse> => (
-  fetch(`${HOST}/magic_generate`, {
+  fetch(`${baseHTTP}/magic_generate`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${clientToken}`,
@@ -14,7 +13,7 @@ export const generateMagicToken = async (clientToken: string): Promise<MagicGene
 );
 
 export const magicVerify = async (clientToken: string, verificationCode: string): Promise<MagicVerifyApiResponse> => (
-  fetch(`${HOST}/magic_verify`, {
+  fetch(`${baseHTTP}/magic_verify`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${clientToken}`,

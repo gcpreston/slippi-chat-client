@@ -8,7 +8,7 @@ import Token from './components/Token';
 import MagicLoginDialog from './components/MagicLoginDialog';
 import { generateMagicToken, magicVerify } from './api';
 import useToken from './hooks/useToken';
-import { baseHTTP } from '../utils';
+import { baseHTTP, isProduction } from '../utils';
 import { BackendConnectionStatus } from './types';
 
 const CHAT_URL = `${baseHTTP}/chat`;
@@ -69,7 +69,7 @@ const App = () => {
 
   return (
     <Container maxWidth="md">
-      <h1 className="text-3xl font-bold mb-4">Slippi Chat Client</h1>
+      <h1 className="text-3xl font-bold mb-4">Slippi Chat Client {!isProduction && '(development)'}</h1>
       <Token />
       <div>
         Phoenix state: {backendStatus}{clientCode && ` (${clientCode})`}

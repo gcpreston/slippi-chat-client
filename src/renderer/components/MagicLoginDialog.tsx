@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, Link, Stack, TextField, Button } from '@mui/material';
 import { QRCode } from 'react-qrcode-logo';
 
+import { baseHTTP } from '../../utils';
+
 type MagicLoginDialogProps = {
   open: boolean;
   magicToken: string | undefined;
@@ -9,7 +11,7 @@ type MagicLoginDialogProps = {
   handleSubmit: (verificationCode: string) => void;
 };
 
-const magicUrl = (token) => `http://localhost:4000/magic_log_in?t=${token}`;
+const magicUrl = (token) => `${baseHTTP}/magic_log_in?t=${token}`;
 
 const MagicLoginDialog = ({ open, magicToken, handleClose, handleSubmit }: MagicLoginDialogProps) => {
   const [code, setCode] = useState('');
