@@ -1,22 +1,36 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Container, Snackbar, Alert, AlertColor } from '@mui/material';
+import { Button, Container, Snackbar, Alert, AlertColor, CircularProgress } from '@mui/material';
 import Refresh from '@mui/icons-material/Refresh';
+import Link from '@mui/icons-material/Link';
+import LinkOff from '@mui/icons-material/LinkOff';
 
 import useBackendConnectionStatus from './hooks/useBackendConnectionStatus';
 import useSlippiConnectionStatus from './hooks/useSlippiConnectionStatus';
-import Token from './components/Token';
 import MagicLoginDialog from './components/MagicLoginDialog';
+import TokenInput from './components/TokenInput';
 import { generateMagicToken, magicVerify } from './api';
 import useToken from './hooks/useToken';
 import { baseHTTP, isProduction } from '../utils';
 import { BackendConnectionStatus } from './types';
+import { SlippiClientConnectionStatus } from '../slippi/types';
 
 const CHAT_URL = `${baseHTTP}/chat`;
+
+const getSlippiStatusIcon = (status: SlippiClientConnectionStatus) => {
+  switch (status) {
+    case SlippiClientConnectionStatus.CONNECTED:
+      return <Link color='success' />;
+    case SlippiClientConnectionStatus.CONNECTING:
+      return <CircularProgress size={20} />;
+    default:
+      return <LinkOff color='error' />;
+  }
+}
 
 const App = () => {
   const [backendStatus, clientCode] = useBackendConnectionStatus();
   const slippiStatus = useSlippiConnectionStatus();
-  const [token, _setToken] = useToken();
+  const [token, setToken] = useToken();
 
   const [magicDialogOpen, setMagicDialogOpen] = useState(false);
   const [magicToken, setMagicToken] = useState<string | undefined>();
@@ -30,8 +44,8 @@ const App = () => {
   const [snackbarData, setSnackbarData] = useState<SnackbarData>({ open: false, variant: 'success', message: '' });
 
   useEffect(() => {
-    window.electron.connectToPhoenix();
     window.electron.connectToSlippi();
+    window.electron.connectToPhoenix();
   }, []);
 
   const startMagicLogin = () => {
@@ -67,23 +81,47 @@ const App = () => {
 
   const handleSnackClose = () => setSnackbarData({ open: false, variant: 'success', message: '' });
 
+  const backendStatusIcon = backendStatus === BackendConnectionStatus.CONNECTED ? <Link color='success' /> : <LinkOff color='error' />;
+
   return (
     <Container maxWidth="md">
-      <h1 className="text-3xl font-bold mb-4">Slippi Chat Client {!isProduction && '(development)'}</h1>
-      <Token />
-      <div>
-        Phoenix state: {backendStatus}{clientCode && ` (${clientCode})`}
-        { [BackendConnectionStatus.Disconnected, BackendConnectionStatus.Error].includes(backendStatus) && <button onClick={() => window.electron.connectToPhoenix()}><Refresh /></button>}
-        { backendStatus === BackendConnectionStatus.Connected &&
-          <Button variant='contained'>
-            <a href={CHAT_URL} target='_blank'>Open chat</a>
-          </Button>
+      <h1 className="text-3xl font-bold mb-4">SlippiChat Client {!isProduction && '(development)'}</h1>
+
+      <div className='mt-8'>
+        Slippi: {getSlippiStatusIcon(slippiStatus)}
+        { slippiStatus === SlippiClientConnectionStatus.DISCONNECTED && <button onClick={() => window.electron.connectToSlippi()}><Refresh /></button>}
+      </div>
+
+      <div className='mt-2'>
+        { backendStatus === BackendConnectionStatus.CONNECTED ?
+          <div>
+            <div className='mb-2'>SlippiChat backend: {backendStatusIcon} {clientCode && ` (${clientCode})`}</div>
+            { backendStatus === BackendConnectionStatus.CONNECTED &&
+              <Button variant='contained'>
+                <a href={CHAT_URL} target='_blank'>Open chat</a>
+              </Button>
+            }
+          </div>
+          :
+          <div>
+            { backendStatus === BackendConnectionStatus.ERROR && <Alert severity='error' className='mb-2'>Error connecting to SlippiChat backend.</Alert>}
+            { token === undefined ?
+              <CircularProgress size={20} />
+              :
+              <TokenInput
+                token={token}
+                backendStatus={backendStatus}
+                submit={(newToken) => {
+                  setToken(newToken).then(() => window.electron.connectToPhoenix());
+                }}
+              />
+            }
+          </div>
         }
       </div>
-      <div>
-        Slippi state: {slippiStatus}
-        { slippiStatus === 'DISCONNECTED' && <button onClick={() => window.electron.connectToSlippi()}><Refresh /></button>}
-      </div>
+
+      <hr className='my-8' />
+
       <div>
         <Button variant='contained' onClick={startMagicLogin}>Magic login</Button>
         <MagicLoginDialog open={magicDialogOpen} magicToken={magicToken} handleClose={handleCloseMagicDialog} handleSubmit={handleSubmitMagicDialog} />
@@ -92,6 +130,10 @@ const App = () => {
             {snackbarData.message}
           </Alert>
         </Snackbar>
+      </div>
+
+      <div className='mt-4'>
+        <Button variant='contained' onClick={() => window.electron.disconnectFromPhoenix()}>Change client token</Button>
       </div>
     </Container>
   );

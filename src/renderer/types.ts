@@ -7,8 +7,8 @@ export type MagicGenerateApiResponse = {
 export type MagicVerifyApiResponse = string;
 
 export enum BackendConnectionStatus {
-  Connecting = 'CONNECTING',
-  Connected = 'CONNECTED',
-  Disconnected = 'DISCONNECTED',
-  Error = 'ERROR'
+  CONNECTING = 'CONNECTING',
+  CONNECTED = 'CONNECTED',
+  DISCONNECTED = 'DISCONNECTED',
+  ERROR = 'ERROR'
 }

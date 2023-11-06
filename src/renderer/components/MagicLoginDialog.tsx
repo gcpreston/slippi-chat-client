@@ -23,12 +23,12 @@ const MagicLoginDialog = ({ open, magicToken, handleClose, handleSubmit }: Magic
           <ol className='list-decimal'>
             <li>
               <div>Scan the QR code, or nagivate to <Link href={magicUrl(magicToken)} target="_blank" underline='hover'>this link</Link></div>
-              <div className="flex justify-center">
+              <div className="flex justify-center my-4">
                 <QRCode value={magicUrl(magicToken)} />
               </div>
             </li>
             <li>
-              <div>Enter the code found at the link.</div>
+              <div className='mb-4'>Enter the code found at the link.</div>
               <form onSubmit={(event) => {
                 event.preventDefault();
                 handleSubmit(code)

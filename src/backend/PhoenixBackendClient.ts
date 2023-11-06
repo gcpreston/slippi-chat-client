@@ -11,6 +11,7 @@ const CHANNEL_TOPIC = 'clients';
 type ClientChannelConnectResponse = { connect_code: string };
 
 export class PhoenixBackendClient implements PhoenixService {
+  private socket: typeof Socket | undefined
   private channel: typeof Channel | undefined;
   private clientCode: string | undefined;
   private bindings: Array<PhoenixBinding<PhoenixEventType>> = [];
@@ -24,9 +25,12 @@ export class PhoenixBackendClient implements PhoenixService {
 
   connect() {
     const token = UserData.readData('client-token');
-    const socket = new Socket(SOCKET_URL, { params: { client_token: token } });
-    socket.connect();
-    this.channel = socket.channel(CHANNEL_TOPIC, {});
+
+    if (!token) return;
+
+    this.socket = new Socket(SOCKET_URL, { params: { client_token: token } });
+    this.socket.connect();
+    this.channel = this.socket.channel(CHANNEL_TOPIC, {});
 
     this.handleEvent({
       type: PhoenixEventType.CHANNEL_JOINING,
@@ -42,6 +46,7 @@ export class PhoenixBackendClient implements PhoenixService {
       });
 
       this.channel.leave();
+      this.socket.disconnect();
     });
 
     this.channel.join()
@@ -64,6 +69,16 @@ export class PhoenixBackendClient implements PhoenixService {
           error: resp
         });
       });
+  }
+
+  disconnect(): void {
+    this.channel.leave();
+    this.socket.disconnect();
+
+    this.handleEvent({
+      type: PhoenixEventType.CHANNEL_LEAVE,
+      topic: this.channel.topic
+    });
   }
 
   onEvent(eventType: PhoenixEventType, handle: (event: PhoenixEventMap[typeof eventType]) => void): void {

@@ -50,6 +50,10 @@ const createWindow = () => {
     mainWindow.webContents.send('phoenix-connect-error', resp);
   });
 
+  backendService.onEvent(PhoenixEventType.CHANNEL_LEAVE, (resp) => {
+    mainWindow.webContents.send('phoenix-disconnected', resp);
+  })
+
   slippiService.onEvent(SlippiEventType.CONNECTION_STATUS_CHANGED, (event) => {
     mainWindow.webContents.send('slippi-connection-status-changed', event);
   });
@@ -66,6 +70,7 @@ const createWindow = () => {
   ipcMain.on('set-client-token', (_event, newToken: string) => UserData.writeData('client-token', newToken));
 
   ipcMain.on('phoenix-connect', () => backendService.connect());
+  ipcMain.on('phoenix-disconnect', () => backendService.disconnect());
   ipcMain.on('backend-clear-bindings', () => backendService.clearBindings());
   ipcMain.on('slippi-connect', () => slippiService.connect());
 };

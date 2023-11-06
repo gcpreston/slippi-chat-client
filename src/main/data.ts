@@ -23,7 +23,7 @@ export class UserData {
   }
 
   static readData(key: string): string {
-   let contents = parseData();
-   return contents[key];
+    let contents = parseData();
+    return contents[key];
   }
 }

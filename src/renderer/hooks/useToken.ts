@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react';
 
-const useToken: () => [string | null, (newToken: string | null) => Promise<void>] = () => {
-  const [token, setToken] = useState<string | null>(null);
+type ClientTokenType = string | null | undefined;
+// string -> token is loaded and set
+// null -> token is loaded and not set
+// undefined -> token is not yet loaded
+
+const useToken: () => [ClientTokenType, (newToken: string | null) => Promise<void>] = () => {
+  const [token, setToken] = useState<ClientTokenType>(undefined);
 
   useEffect(() => {
     const fetchToken = async () => {
